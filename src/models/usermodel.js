@@ -47,7 +47,7 @@ const userschema= new Schema(
         }
 
         
-    }{
+    },{
         timestamps:true
     }
 )
@@ -66,10 +66,10 @@ userschema.methods.ispasswordcorrect=async function (password) {
 userschema.methods.genaccesstoken=function(){
     return jwt.sign(
         {
-            _id=this._id,
-            email=this.email,
-            username=this.username,
-            fullname=this.fullname
+            _id:this._id,
+            email:this.email,
+            username:this.username,
+            fullname:this.fullname
         },
         process.env.ACCESSTOKEN,
         {
@@ -81,7 +81,7 @@ userschema.methods.genaccesstoken=function(){
 userschema.methods.genrefreshtoken=function(){
     return jwt.sign(
         {
-            _id=this._id,
+            _id:this._id,
            
         },
         process.env.REFRESHTOKEN,

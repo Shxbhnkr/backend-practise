@@ -9,7 +9,7 @@ const uploadoncloud=async function(localfpath) {
             if (!localfpath) {
                 return null
             }
-            cloudinary.uploader.upload(localfpath,{
+            const response=await cloudinary.uploader.upload(localfpath,{
                 resource_type:"auto"
             })
             console.log("file uploaded",response.url);
@@ -17,7 +17,7 @@ const uploadoncloud=async function(localfpath) {
             
         } catch (error) {
             fs.unlink(localfpath)
-            return null
+            return null;
         }
 }
 
@@ -28,6 +28,6 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARYSECRET 
 });
 
-
+export {uploadoncloud}
 
 

@@ -6,7 +6,7 @@ import { Apiresponse } from "../utils/apiresponse.js";
 import { response } from "express";
 
 const registeruser=asynchandler(async(req,res)=>{
-    const{username,email,avatar,coverimage}=req.body
+    const{fullname,email,username,password}=req.body
     console.log("uname",username);
     
     if ([fullname,email,username,password].some((field)=>field?.trim()==="")
@@ -15,12 +15,12 @@ const registeruser=asynchandler(async(req,res)=>{
         
     }
 
-    const exiteduser=user.findOne({
+    const existuser= await user.findOne({
         $or: [{username},{email}]
 
     })
-    if (exiteduser) {
-        throw new Apierror(409,"user already exit") 
+    if (existuser) {
+        throw new Apierror(409,"user already exist") 
     }
 
     const avatarlocalpath=req.files?.avatar[0]?.path;
@@ -29,16 +29,16 @@ const registeruser=asynchandler(async(req,res)=>{
         throw new Apierror(400,"avatar file is required")
     }
 
-    const avatr=await uploadoncloud(avatarlocalpath);
-    const coverimg=await uploadoncloud(coverimagelocalpath);
-    if (!avatr) {
+    const avatar=await uploadoncloud(avatarlocalpath);
+    const coverimage=await uploadoncloud(coverimagelocalpath);
+    if (!avatar) {
         throw new Apierror(400,"avatar file is required")
     }
 
     const usercreate=await user.create({
         fullname,
-        avatr:avatr.url,
-        coverimg:coverimg?.url||"",
+        avatar:avatar.url,
+        coverimage:coverimage?.url||"",
         email,
         password,
         username:username.toLowerCase()
@@ -54,7 +54,7 @@ const registeruser=asynchandler(async(req,res)=>{
     }
 
     return res.status(201).json(
-        new Apiresponse(200,"registeration success")
+        new Apiresponse(200,createduser,"registeration success")
     )
 
 })

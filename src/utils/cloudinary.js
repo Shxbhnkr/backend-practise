@@ -3,6 +3,11 @@ import { log } from 'console';
 import { response } from 'express';
 import fs from "fs"
 
+cloudinary.config({ 
+    cloud_name: process.env.CLOUDINARYNAME,
+    api_key: process.env.CLOUDINARYKEY, 
+    api_secret: process.env.CLOUDINARYSECRET 
+});
 
 const uploadoncloud=async function(localfpath) {
         try {
@@ -12,7 +17,8 @@ const uploadoncloud=async function(localfpath) {
             const response=await cloudinary.uploader.upload(localfpath,{
                 resource_type:"auto"
             })
-            console.log("file uploaded",response.url);
+            // console.log("file uploaded",response.url);
+            fs.unlinkSync(localfpath)
             return response;
             
         } catch (error) {
@@ -22,11 +28,6 @@ const uploadoncloud=async function(localfpath) {
 }
 
 
-cloudinary.config({ 
-    cloud_name: process.env.CLOUDINARYNAME,
-    api_key: process.env.CLOUDINARYKEY, 
-    api_secret: process.env.CLOUDINARYSECRET 
-});
 
 export {uploadoncloud}
 

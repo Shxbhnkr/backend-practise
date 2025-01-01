@@ -1,12 +1,11 @@
 const asynchandler=(requesthandler)=>{
     return (req,res,next)=>    {
-        Promise.resolve(requesthandler(req,res,next))
-        .catch((error)=>{next.error( )})
+        Promise.resolve(requesthandler(req,res,next)).catch((error)=>next(error))
     }
 }
 //trying second appproach
 //  const asynchandler =(fn)=>async(req,res,next)=>{
-//         try {
+//         try {    
 //             await fn(req,res,next)
 //         } catch (error) {
 //             res.status(error.code||500).json({

@@ -14,7 +14,7 @@ const userschema= new Schema(
         email:{
             type: String,
             required:true,
-            unique:true,
+            unique:true, 
             lowercase:true,
             trim:true,
             
@@ -85,12 +85,12 @@ userschema.methods.genrefreshtoken=function(){
            
         },
         process.env.REFRESHTOKEN,
-        {
+        {   
             expiresIn:process.env.REFRESHTOKENEXPIRY
         }
     )
 }
 
+const user= mongoose.model("user",userschema)
 
-
-export const user= mongoose.model("user",userschema)
+export {user}

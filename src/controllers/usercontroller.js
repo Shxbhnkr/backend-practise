@@ -23,7 +23,7 @@ const genacessandrefresh=async(userid)=> {
     }
 }
 
-const registeruser=asynchandler(async(req,res)=>{
+const registeruser=asynchandler(async(req,res)=>{ 
     const{fullname,email,username,password}=req.body
     
     if ([fullname,email,username,password].some((field)=>field?.trim()==="")
@@ -146,7 +146,7 @@ const logoutuser=asynchandler(async (req,res) => {
 
 const refreshacctoken=asynchandler(async (req,res) => {
     const incomingrefreshtoken=req.cookies.reftoken||req.body.reftoken
-    if (incomingrefreshtoken) {
+    if (!incomingrefreshtoken) {
         throw new Apierror(401,"unaouthorised request")
     }
 
@@ -186,10 +186,109 @@ const refreshacctoken=asynchandler(async (req,res) => {
 
 })
 
+const changecurrentpass=asynchandler(async (req,res) => {
+    const {oldpass,newpass}=req.body
+    const buser=await user.findById(req.buser?._id)
+    const ispasswordcorrect=await buser.ispasswordcorrect(oldpass)
+    if (!ispasswordcorrect) {
+        throw new Apierror(400,"invalid old pass")
+    }
 
+    buser.password=newpass
+    await buser.save({validateBeforeSave:false})
+
+    return res.status(200).json(new Apiresponse(200,{},"password changed !"))
+
+})
+
+const getcurruser=asynchandler(async (req,res) => {
+    return res.status(200).json(200,req.buser,"current user fetched !")
+})
+
+const updateaccdetails=asynchandler(async (req,res) => {
+    const {fullname,email}=req.body
+    if(!fullname || !email){
+        throw new Apierror(400,"enter credentials")
+    }
+    const buser=user.findByIdAndUpdate(
+        req.buser?._id,
+        {
+            $set:{
+                fullname,
+                email, 
+            }
+        },
+        {new:true}
+    ).select("-password")
+
+    return res.status(200).json(new Apiresponse(200,buser,"account details updated !"))
+})
+
+const updateuseravatar=asynchandler(async (req,res) => {
+    const avatarlocalpath=req.file?.path
+    if (!avatarlocalpath) {
+        throw new Apierror(400,"avatar file missing")
+    }
+    const avatar=await uploadoncloud(avatarlocalpath)
+    if (!avatar.url) {
+        throw new Apierror(400,"avatar link missing")
+    }
+    await user.findByIdAndUpdate(
+        req.buser?._id,
+        {
+            $set:{
+                avatar:avatar.url 
+            }
+        },
+        {new:true}
+    ).select("-password")
+
+    return res
+    .status(200)
+    .json(
+        new Apiresponse(200, buser, "Avatar image updated successfully")
+    )
+
+
+})
+
+const updateusercover=asynchandler(async (req,res) => {
+    const coverlocalpath=req.file?.path
+    if (!coverlocalpath) {
+        throw new Apierror(400,"cover file missing")
+    }
+    const coverimage=await uploadoncloud(coverlocalpath)
+    if (!cover.url) {
+        throw new Apierror(400,"coverimage link missing")
+    }
+    await user.findByIdAndUpdate(
+        req.buser?._id,
+        {
+            $set:{
+                coverimage:coverimage.url 
+            }
+        },
+        {new:true}
+    ).select("-password")
+
+    return res
+    .status(200)
+    .json(
+        new Apiresponse(200, buser, "Cover image updated successfully")
+    )
+
+
+})
+
+retur
 export {
     registeruser,
     loginUser,
     logoutuser,
-    refreshacctoken
+    refreshacctoken,
+    changecurrentpass,
+    getcurruser,
+    updateaccdetails,
+    updateuseravatar,
+    updateusercover
 }

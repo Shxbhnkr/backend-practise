@@ -27,4 +27,15 @@ userrouter.route("/logout").post(verifyjwt,logoutuser)
 
 userrouter.route("/refresh-token").post(refreshacctoken)
 
+userrouter.route("/change-password").post(verifyjwt, changecurrentpass)
+userrouter.route("/current-user").get(verifyjwt, getcurruser)
+userrouter.route("/update-account").patch(verifyjwt, updateaccdetails)
+
+userrouter.route("/cover-image").patch(verifyjwt, upload.single("coverImage"), updateusercover)
+userrouter.route("/avatar").patch(verifyjwt, upload.single("avatar"), updateuseravatar)
+
+userrouter.route("/c/:username").get(verifyjwt, getUserChannelProfile)
+userrouter.route("/history").get(verifyjwt, getWatchHistory)
+
+
 export default userrouter   

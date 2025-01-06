@@ -210,7 +210,7 @@ const updateaccdetails=asynchandler(async (req,res) => {
     if(!fullname || !email){
         throw new Apierror(400,"enter credentials")
     }
-    const buser=user.findByIdAndUpdate(
+    const buser=await user.findByIdAndUpdate(
         req.buser?._id,
         {
             $set:{
@@ -280,7 +280,132 @@ const updateusercover=asynchandler(async (req,res) => {
 
 })
 
-retur
+const getUserChannelProfile = asynchandler(async(req, res) => {
+    const {username} = req.params
+
+    if (!username?.trim()) {
+        throw new Apierror(400, "username is missing")
+    }
+
+    const channel = await user.aggregate([
+        {
+            $match: {
+                username: username?.toLowerCase()
+            }
+        },
+        {
+            $lookup: {
+                from: "subscriptions",
+                localField: "_id",
+                foreignField: "channel",
+                as: "subscribers"
+            }
+        },
+        {
+            $lookup: {
+                from: "subscriptions",
+                localField: "_id",
+                foreignField: "subscriber",
+                as: "subscribedTo"
+            }
+        },
+        {
+            $addFields: {
+                subscribersCount: {
+                    $size: "$subscribers"
+                },
+                channelsSubscribedToCount: {
+                    $size: "$subscribedTo"
+                },
+                isSubscribed: {
+                    $cond: {
+                        if: {$in: [req.user?._id, "$subscribers.subscriber"]},
+                        then: true,
+                        else: false
+                    }
+                }
+            }
+        },
+        {
+            $project: {
+                fullName: 1,
+                username: 1,
+                subscribersCount: 1,
+                channelsSubscribedToCount: 1,
+                isSubscribed: 1,
+                avatar: 1,
+                coverImage: 1,
+                email: 1
+
+            }
+        }
+    ])
+
+    if (!channel?.length) {
+        throw new Apierror(404, "channel does not exists")
+    }
+
+    return res
+    .status(200)
+    .json(
+        new Apiresponse(200, channel[0], "User channel fetched successfully")
+    )
+})
+
+const getWatchHistory = asynchandler(async(req, res) => {
+    const user = await user.aggregate([
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(req.user._id)
+            }
+        },
+        {
+            $lookup: {
+                from: "videos",
+                localField: "watchHistory",
+                foreignField: "_id",
+                as: "watchHistory",
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: "users",
+                            localField: "owner",
+                            foreignField: "_id",
+                            as: "owner",
+                            pipeline: [
+                                {
+                                    $project: {
+                                        fullName: 1,
+                                        username: 1,
+                                        avatar: 1
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        $addFields:{
+                            owner:{
+                                $first: "$owner"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    ])
+
+    return res
+    .status(200)
+    .json(
+        new Apiresponse(
+            200,
+            user[0].watchHistory,
+            "Watch history fetched successfully"
+        )
+    )
+})
+
 export {
     registeruser,
     loginUser,
@@ -290,5 +415,7 @@ export {
     getcurruser,
     updateaccdetails,
     updateuseravatar,
-    updateusercover
+    updateusercover,
+    getUserChannelProfile,
+    getWatchHistory
 }

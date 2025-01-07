@@ -121,8 +121,8 @@ const logoutuser=asynchandler(async (req,res) => {
     await user.findByIdAndUpdate(
         req.buser._id,
         {
-            $set:{
-                refreshtoken:undefined
+            $unset:{
+                refreshtoken:1
             }
         },
         {
@@ -405,6 +405,8 @@ const getWatchHistory = asynchandler(async(req, res) => {
         )
     )
 })
+
+
 
 export {
     registeruser,

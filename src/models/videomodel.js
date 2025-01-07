@@ -1,9 +1,9 @@
-import mongoose from "mongoose";
-import Mongoose, { Schema } from "mongoose";
+
+import mongoose, { Schema } from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 const videoschema= new Schema(
     {
-        uvideofile:{
+        videofile:{
             type: String,
             required:true,
           

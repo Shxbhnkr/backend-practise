@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { loginUser,registeruser,logoutuser } from "../controllers/usercontroller.js";
+import { loginUser,registeruser,logoutuser,refreshacctoken,getcurruser,changecurrentpass,updateaccdetails,updateusercover,updateuseravatar,getUserChannelProfile, getWatchHistory} from "../controllers/usercontroller.js";
 import { upload } from "../middlewares/mutlermidware.js";
 import {verifyjwt} from "../middlewares/authmidware.js"
-import { refreshacctoken } from "../controllers/usercontroller.js";
+import { } from "../controllers/usercontroller.js";
 
 const userrouter=Router()
 
@@ -27,7 +27,7 @@ userrouter.route("/logout").post(verifyjwt,logoutuser)
 
 userrouter.route("/refresh-token").post(refreshacctoken)
 
-userrouter.route("/change-password").post(verifyjwt, changecurrentpass)
+userrouter.route("/change-password").post(verifyjwt,changecurrentpass)
 userrouter.route("/current-user").get(verifyjwt, getcurruser)
 userrouter.route("/update-account").patch(verifyjwt, updateaccdetails)
 
